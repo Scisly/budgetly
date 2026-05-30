@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Budgetly
 
-## Getting Started
+**Budgetly** to wieloużytkownikowy dziennik wydatków — aplikacja webowa stworzona jako projekt zaliczeniowy z przedmiotu *Programowanie aplikacji internetowych* (WSB).
 
-First, run the development server:
+Umożliwia rejestrowanie wydatków i przychodów, zarządzanie kategoriami, ustawianie budżetów z alertami, automatyzację wydatków cyklicznych, porównywanie miesięcy oraz eksport danych do CSV.
+
+## Stack technologiczny
+
+
+| Warstwa        | Technologia                                   |
+| -------------- | --------------------------------------------- |
+| Frontend       | Next.js 16 (App Router), React 19, TypeScript |
+| UI             | shadcn/ui, Tailwind CSS 4, Lucide Icons       |
+| Wykresy        | Recharts                                      |
+| Backend / Baza | Supabase (PostgreSQL, Auth, RLS)              |
+| Walidacja      | Zod                                           |
+| Testy          | Vitest                                        |
+| Deploy         | Vercel                                        |
+
+
+## Uruchomienie lokalne
+
+### Wymagania
+
+- Node.js 20+
+- Konto [Supabase](https://supabase.com) z utworzonym projektem
+
+### 1. Instalacja
+
+```bash
+cd budgetly
+npm install
+```
+
+### 2. Zmienne środowiskowe
+
+Skopiuj `.env.example` do `.env.local` i uzupełnij klucze z Supabase Dashboard → **Settings → API**:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://TWOJ_PROJEKT.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=twoj-anon-key
+SUPABASE_SERVICE_ROLE_KEY=twoj-service-role-key
+```
+
+> `SUPABASE_SERVICE_ROLE_KEY` jest opcjonalny w produkcji; lokalnie ułatwia rejestrację w dev (omija limit e-maili).
+
+### 3. Migracje bazy danych
+
+W Supabase Dashboard → **SQL Editor** uruchom po kolei pliki z `supabase/migrations/`:
+
+1. `001_initial_schema.sql`
+2. `002_rls_policies.sql`
+3. `003_profile_trigger.sql`
+
+### 4. Uruchomienie
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikacja: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Testy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+npm run build
+```
 
-## Learn More
+### 6. Dane demo (opcjonalnie)
 
-To learn more about Next.js, take a look at the following resources:
+Po rejestracji konta uruchom `supabase/seed.sql` w SQL Editor (patrz komentarz w pliku — podmień `USER_ID`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Struktura folderów
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+budgetly/
+├── app/                    # Next.js App Router (strony, layouty)
+│   ├── (auth)/             # Logowanie, rejestracja
+│   └── (dashboard)/        # Chronione ekrany aplikacji
+├── actions/                # Server Actions (kontroler)
+├── services/               # Logika biznesowa
+├── lib/
+│   ├── supabase/           # Klient Supabase (browser, server, middleware)
+│   ├── validations/        # Schematy Zod
+│   └── types/              # Typy TypeScript
+├── components/             # Komponenty UI
+├── supabase/migrations/    # Migracje SQL
+└── docs/                   # Dokumentacja techniczna
+```
 
-## Deploy on Vercel
+**Architektura:** `app/` → `actions/` → `services/` → Supabase Client → PostgreSQL (RLS)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Diagram bazy danych
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](docs/database-diagram.md)`
+
+## Funkcjonalności
+
+
+| Moduł           | Opis                                                             |
+| --------------- | ---------------------------------------------------------------- |
+| **Auth**        | Rejestracja, logowanie, middleware chroniący trasy               |
+| **Kategorie**   | CRUD z ikoną i kolorem; 5 kategorii seedowanych przy rejestracji |
+| **Transakcje**  | CRUD wydatków/przychodów z filtrami (data, kategoria, typ)       |
+| **Dashboard**   | Podsumowanie miesiąca, wykres kołowy, ostatnie transakcje        |
+| **Budżety**     | Limity per kategoria, pasek postępu, alert przy przekroczeniu    |
+| **Cykliczne**   | CRUD + auto-generowanie transakcji przy wejściu do aplikacji     |
+| **Porównanie**  | Wykres słupkowy i tabela różnic między dwoma miesiącami          |
+| **Eksport CSV** | Pobranie wszystkich transakcji z ustawień                        |
+| **UI**          | Dark mode, responsywność (mobile / tablet / desktop), język PL   |
+
+
+## Deploy na Vercel
+
+1. Wypchnij repozytorium na GitHub.
+2. W [Vercel](https://vercel.com) → **Import Project** → wybierz repo, root: `budgetly`.
+3. Dodaj zmienne środowiskowe:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - opcjonalnie `SUPABASE_SERVICE_ROLE_KEY` (rejestracja w dev)
+4. W Supabase → **Authentication → URL Configuration**:
+  - **Site URL:** `https://twoja-domena.vercel.app`
+  - **Redirect URLs:** `https://twoja-domena.vercel.app/`**
+5. Po deployu zweryfikuj logowanie i CRUD na produkcji.
+
+Checklista przed prezentacją: `[docs/demo-checklist.md](docs/demo-checklist.md)`
+
+## Autor
+
+Projekt indywidualny — *Programowanie aplikacji internetowych*, WSB.
+
+> Karol Scisłowski, 177306, Informatyka Online, K38
+
+## Licencja
+
+Projekt edukacyjny — do użytku zaliczeniowego.
