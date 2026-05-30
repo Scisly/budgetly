@@ -26,6 +26,7 @@ erDiagram
         uuid id PK
         uuid user_id FK "UNIQUE → auth.users"
         text display_name
+        text currency_code "CHECK lista walut"
         timestamptz created_at
     }
 

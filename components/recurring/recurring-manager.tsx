@@ -171,15 +171,18 @@ export function RecurringManager({
         </>
       )}
 
-      <RecurringForm
-        mode="create"
-        categories={categories}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {createOpen && (
+        <RecurringForm
+          mode="create"
+          categories={categories}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
 
       {editingExpense && (
         <RecurringForm
+          key={editingExpense.id}
           mode="edit"
           expense={editingExpense}
           categories={categories}

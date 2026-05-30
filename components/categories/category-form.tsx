@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import {
@@ -53,33 +53,23 @@ export function CategoryForm({
   const [color, setColor] = useState(defaultColor);
   const [icon, setIcon] = useState<string>(defaultIcon);
 
-  const boundAction = useCallback(
-    async (
-      _prevState: CategoryActionState,
-      formData: FormData
-    ): Promise<CategoryActionState> => {
-      if (mode === "create") {
-        return createCategoryAction(formData);
-      }
-      if (!category?.id) {
-        return { error: "Brak identyfikatora kategorii." };
-      }
-      return updateCategoryAction(category.id, formData);
-    },
-    [mode, category?.id]
-  );
+  async function boundAction(
+    _prevState: CategoryActionState,
+    formData: FormData
+  ): Promise<CategoryActionState> {
+    if (mode === "create") {
+      return createCategoryAction(formData);
+    }
+    if (!category?.id) {
+      return { error: "Brak identyfikatora kategorii." };
+    }
+    return updateCategoryAction(category.id, formData);
+  }
 
   const [state, formAction, isPending] = useActionState(
     boundAction,
     initialActionState
   );
-
-  useEffect(() => {
-    if (open) {
-      setColor(category?.color ?? CATEGORY_COLORS[0]);
-      setIcon(category?.icon ?? CATEGORY_ICONS[0]);
-    }
-  }, [open, category?.color, category?.icon]);
 
   useEffect(() => {
     if (state.success) {

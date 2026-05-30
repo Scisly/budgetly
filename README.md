@@ -51,6 +51,7 @@ W Supabase Dashboard → **SQL Editor** uruchom po kolei pliki z `supabase/migra
 1. `001_initial_schema.sql`
 2. `002_rls_policies.sql`
 3. `003_profile_trigger.sql`
+4. `004_profile_currency.sql`
 
 ### 4. Uruchomienie
 
@@ -91,6 +92,14 @@ budgetly/
 
 **Architektura:** `app/` → `actions/` → `services/` → Supabase Client → PostgreSQL (RLS)
 
+## Materiały do przekazania
+
+- kod źródłowy projektu,
+- `README.md` z instrukcją uruchomienia,
+- `docs/dokumentacja_projektowa_budgetly_uml.docx` jako rozszerzona dokumentacja projektowa,
+- `docs/database-diagram.md` jako opis i diagram ER bazy danych,
+- `docs/demo-checklist.md` jako scenariusz prezentacji i lista kontroli przed demo.
+
 ## Diagram bazy danych
 
 Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](docs/database-diagram.md)`
@@ -128,9 +137,11 @@ Checklista przed prezentacją: `[docs/demo-checklist.md](docs/demo-checklist.md)
 
 ## Autor
 
-Projekt indywidualny — *Programowanie aplikacji internetowych*, WSB.
+Projekt zespołowy — *Programowanie aplikacji internetowych*, WSB.
 
 > Karol Scisłowski, 177306, Informatyka Online, K38
+>
+> Jakub Grygiel, 174556, Informatyka Online, K38
 
 ## Licencja
 

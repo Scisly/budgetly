@@ -1,19 +1,8 @@
 import type { Metadata } from "next";
-import { DM_Sans, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SoundProvider } from "@/components/providers/sound-provider";
 import { cn } from "@/lib/utils";
 import "./globals.css";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-heading",
-});
 
 export const metadata: Metadata = {
   title: "Budgetly — Dziennik wydatków",
@@ -29,12 +18,7 @@ export default function RootLayout({
     <html
       lang="pl"
       suppressHydrationWarning
-      className={cn(
-        "h-full antialiased",
-        dmSans.variable,
-        plusJakarta.variable,
-        "font-sans"
-      )}
+      className={cn("h-full antialiased", "font-sans")}
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

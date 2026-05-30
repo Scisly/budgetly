@@ -88,17 +88,20 @@ export function BudgetsManager({
         </div>
       )}
 
-      <BudgetForm
-        mode="create"
-        categories={categories}
-        defaultMonth={month}
-        defaultYear={year}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {createOpen && (
+        <BudgetForm
+          mode="create"
+          categories={categories}
+          defaultMonth={month}
+          defaultYear={year}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
 
       {editingBudget && (
         <BudgetForm
+          key={editingBudget.budget.id}
           mode="edit"
           budget={editingBudget}
           categories={categories}

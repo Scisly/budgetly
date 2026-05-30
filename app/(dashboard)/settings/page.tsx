@@ -41,7 +41,7 @@ export default async function SettingsPage() {
             Wybierz walutę, w której mają być wyświetlane kwoty w aplikacji.
           </p>
         </div>
-        <CurrencySelector currentCurrency={currentCurrency} />
+        <CurrencySelector key={currentCurrency} currentCurrency={currentCurrency} />
       </section>
 
       <section className="space-y-4 rounded-xl border border-border bg-card p-6">

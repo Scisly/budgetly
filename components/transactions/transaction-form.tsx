@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import {
@@ -70,40 +70,27 @@ export function TransactionForm({
     setAmount,
     currencyCode,
     applyAmountToFormData,
-  } = useCurrencyAmountInput(transaction?.amount, open);
+  } = useCurrencyAmountInput(transaction?.amount);
 
-  const boundAction = useCallback(
-    async (
-      _prevState: TransactionActionState,
-      formData: FormData
-    ): Promise<TransactionActionState> => {
-      applyAmountToFormData(formData);
+  async function boundAction(
+    _prevState: TransactionActionState,
+    formData: FormData
+  ): Promise<TransactionActionState> {
+    applyAmountToFormData(formData);
 
-      if (mode === "create") {
-        return createTransactionAction(formData);
-      }
-      if (!transaction?.id) {
-        return { error: "Brak identyfikatora transakcji." };
-      }
-      return updateTransactionAction(transaction.id, formData);
-    },
-    [mode, transaction?.id, applyAmountToFormData]
-  );
+    if (mode === "create") {
+      return createTransactionAction(formData);
+    }
+    if (!transaction?.id) {
+      return { error: "Brak identyfikatora transakcji." };
+    }
+    return updateTransactionAction(transaction.id, formData);
+  }
 
   const [state, formAction, isPending] = useActionState(
     boundAction,
     initialActionState
   );
-
-  useEffect(() => {
-    if (open) {
-      setCategoryId(transaction?.category_id ?? categories[0]?.id ?? "");
-      setType(transaction?.type ?? "expense");
-      setTransactionDate(
-        transaction?.transaction_date ?? getTodayDateString()
-      );
-    }
-  }, [open, transaction?.category_id, transaction?.type, transaction?.transaction_date, categories]);
 
   useEffect(() => {
     if (state.success) {

@@ -35,8 +35,14 @@ yarn-error.log*
 !.env.example
 
 # vercel
-.vercel
+/.vercel/
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# office temp files
+~$*.docx
+
+# handoff archives
+budgetly-przekazanie-*.zip

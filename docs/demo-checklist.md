@@ -6,7 +6,7 @@ Lista kontrolna przed prezentacją projektu zaliczeniowego (5–7 min).
 
 - [ ] `npm install` zakończone bez błędów
 - [ ] `.env.local` skonfigurowany (Supabase URL + anon key)
-- [ ] Migracje SQL uruchomione w Supabase
+- [ ] Migracje SQL `001`-`004` uruchomione w Supabase
 - [ ] `npm run dev` — aplikacja na http://localhost:3000
 - [ ] `npm test` — wszystkie testy przechodzą
 - [ ] `npm run build` — build produkcyjny OK

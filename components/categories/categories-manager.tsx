@@ -86,11 +86,13 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
           </Button>
         </div>
 
-        <CategoryForm
-          mode="create"
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-        />
+        {createOpen && (
+          <CategoryForm
+            mode="create"
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+          />
+        )}
       </div>
     );
   }
@@ -177,11 +179,13 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
         ))}
       </div>
 
-      <CategoryForm
-        mode="create"
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {createOpen && (
+        <CategoryForm
+          mode="create"
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
 
       {editingCategory && (
         <CategoryForm

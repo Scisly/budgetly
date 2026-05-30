@@ -105,12 +105,14 @@ export function TransactionsManager({
         />
       )}
 
-      <TransactionForm
-        mode="create"
-        categories={categories}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {createOpen && (
+        <TransactionForm
+          mode="create"
+          categories={categories}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
 
       {editingTransaction && (
         <TransactionForm

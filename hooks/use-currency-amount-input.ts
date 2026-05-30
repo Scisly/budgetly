@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useCurrency } from "@/components/providers/currency-provider";
 import {
   fromFormAmountValue,
@@ -8,17 +8,12 @@ import {
 } from "@/lib/money/format-currency";
 
 export function useCurrencyAmountInput(
-  baseAmount?: number | null,
-  enabled = true
+  baseAmount?: number | null
 ) {
   const { currencyCode, baseCurrency, rate } = useCurrency();
-  const [amount, setAmount] = useState("");
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    setAmount(toFormAmountValue(baseAmount, rate));
-  }, [baseAmount, enabled, rate]);
+  const [amount, setAmount] = useState(() =>
+    toFormAmountValue(baseAmount, rate)
+  );
 
   const applyAmountToFormData = useCallback(
     (formData: FormData, fieldName = "amount") => {

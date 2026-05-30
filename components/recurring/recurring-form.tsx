@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import {
@@ -67,37 +67,24 @@ export function RecurringForm({
     setAmount,
     currencyCode,
     applyAmountToFormData,
-  } = useCurrencyAmountInput(expense?.amount, open);
+  } = useCurrencyAmountInput(expense?.amount);
 
-  const boundAction = useCallback(
-    async (
-      _prevState: RecurringActionState,
-      formData: FormData
-    ): Promise<RecurringActionState> => {
-      formData.set("category_id", categoryId);
-      formData.set("frequency", frequency);
-      applyAmountToFormData(formData);
-      if (mode === "create") return createRecurringAction(formData);
-      if (!expense?.id) return { error: "Brak identyfikatora wydatku cyklicznego." };
-      return updateRecurringAction(expense.id, formData);
-    },
-    [mode, expense?.id, categoryId, frequency, applyAmountToFormData]
-  );
+  async function boundAction(
+    _prevState: RecurringActionState,
+    formData: FormData
+  ): Promise<RecurringActionState> {
+    formData.set("category_id", categoryId);
+    formData.set("frequency", frequency);
+    applyAmountToFormData(formData);
+    if (mode === "create") return createRecurringAction(formData);
+    if (!expense?.id) return { error: "Brak identyfikatora wydatku cyklicznego." };
+    return updateRecurringAction(expense.id, formData);
+  }
 
   const [state, formAction, isPending] = useActionState(
     boundAction,
     initialActionState
   );
-
-  useEffect(() => {
-    if (open) {
-      setCategoryId(expense?.category_id ?? categories[0]?.id ?? "");
-      setFrequency(expense?.frequency ?? "monthly");
-      setNextOccurrence(
-        expense?.next_occurrence ?? format(new Date(), "yyyy-MM-dd")
-      );
-    }
-  }, [open, expense?.category_id, expense?.frequency, expense?.next_occurrence, categories]);
 
   useEffect(() => {
     if (state.success) {

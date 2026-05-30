@@ -47,10 +47,6 @@ export function CurrencySelector({ currentCurrency }: CurrencySelectorProps) {
   const [, startTransition] = useTransition();
 
   useEffect(() => {
-    setCurrency(currentCurrency);
-  }, [currentCurrency]);
-
-  useEffect(() => {
     if (state.success) {
       toast.success("Zapisano preferencję waluty.");
       router.refresh();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import {
@@ -62,32 +62,23 @@ export function BudgetForm({
     setAmount,
     currencyCode,
     applyAmountToFormData,
-  } = useCurrencyAmountInput(budget?.limit, open);
+  } = useCurrencyAmountInput(budget?.limit);
 
-  const boundAction = useCallback(
-    async (
-      _prevState: BudgetActionState,
-      formData: FormData
-    ): Promise<BudgetActionState> => {
-      formData.set("category_id", categoryId);
-      applyAmountToFormData(formData, "limit_amount");
-      if (mode === "create") return createBudgetAction(formData);
-      if (!budget?.budget.id) return { error: "Brak identyfikatora budżetu." };
-      return updateBudgetAction(budget.budget.id, formData);
-    },
-    [mode, budget?.budget.id, categoryId, applyAmountToFormData]
-  );
+  async function boundAction(
+    _prevState: BudgetActionState,
+    formData: FormData
+  ): Promise<BudgetActionState> {
+    formData.set("category_id", categoryId);
+    applyAmountToFormData(formData, "limit_amount");
+    if (mode === "create") return createBudgetAction(formData);
+    if (!budget?.budget.id) return { error: "Brak identyfikatora budżetu." };
+    return updateBudgetAction(budget.budget.id, formData);
+  }
 
   const [state, formAction, isPending] = useActionState(
     boundAction,
     initialActionState
   );
-
-  useEffect(() => {
-    if (open) {
-      setCategoryId(budget?.budget.category_id ?? "general");
-    }
-  }, [open, budget?.budget.category_id]);
 
   useEffect(() => {
     if (state.success) {
