@@ -3,6 +3,7 @@ import {
   ArrowLeftRight,
   BarChart2,
   LayoutDashboard,
+  LineChartIcon,
   Repeat,
   Settings,
   Tags,
@@ -25,6 +26,7 @@ export const primaryNavItems: NavItem[] = [
 export const secondaryNavItems: NavItem[] = [
   { href: "/recurring", label: "Cykliczne", icon: Repeat },
   { href: "/compare", label: "Porównanie", icon: BarChart2 },
+  { href: "/trends", label: "Trendy", icon: LineChartIcon },
   { href: "/settings", label: "Ustawienia", icon: Settings },
 ];
 
