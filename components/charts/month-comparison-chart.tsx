@@ -56,11 +56,7 @@ export function MonthComparisonChart({
   const { formatCompact } = useCurrency();
 
   if (data.length === 0) {
-    return (
-      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 text-sm text-muted-foreground">
-        Brak wydatków w wybranych miesiącach.
-      </div>
-    );
+    return null;
   }
 
   const chartData = data.map((item) => ({
