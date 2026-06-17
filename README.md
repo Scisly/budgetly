@@ -99,6 +99,7 @@ budgetly/
 - `docs/dokumentacja_projektowa_budgetly_uml.docx` jako rozszerzona dokumentacja projektowa,
 - `docs/database-diagram.md` jako opis i diagram ER bazy danych,
 - `docs/demo-checklist.md` jako scenariusz prezentacji i lista kontroli przed demo.
+- `docs/analytics-module.md` jako opis modułu analityki (metryki, architektura, trade-offs).
 
 ## Diagram bazy danych
 

@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeftRight,
   BarChart2,
+  BarChart3,
   LayoutDashboard,
-  LineChartIcon,
   Repeat,
   Settings,
   Tags,
@@ -26,7 +26,7 @@ export const primaryNavItems: NavItem[] = [
 export const secondaryNavItems: NavItem[] = [
   { href: "/recurring", label: "Cykliczne", icon: Repeat },
   { href: "/compare", label: "Porównanie", icon: BarChart2 },
-  { href: "/trends", label: "Trendy", icon: LineChartIcon },
+  { href: "/analytics", label: "Analityka", icon: BarChart3 },
   { href: "/settings", label: "Ustawienia", icon: Settings },
 ];
 
