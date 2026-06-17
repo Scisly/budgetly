@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { FREQUENCY_LABELS } from "@/lib/recurring/labels";
 import { useCurrency } from "@/components/providers/currency-provider";
-import { formatTransactionDate } from "@/lib/transactions/format";
+import { formatTransactionDate, TYPE_LABELS } from "@/lib/transactions/format";
 import type { Category } from "@/lib/types/database.types";
 import type { RecurringExpenseWithCategory } from "@/services/recurring.service";
 
@@ -90,7 +90,7 @@ export function RecurringManager({
 
   if (categories.length === 0) {
     return (
-      <EmptyState description="Najpierw dodaj kategorię, aby utworzyć wydatek cykliczny." />
+      <EmptyState description="Najpierw dodaj kategorię, aby utworzyć cykliczną transakcję." />
     );
   }
 
@@ -98,9 +98,12 @@ export function RecurringManager({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          Aktywne wydatki generują transakcje automatycznie przy logowaniu.
+          Aktywne transakcje cykliczne generują wpisy automatycznie przy
+          logowaniu.
         </p>
-        <Button onClick={() => setCreateOpen(true)}>Dodaj cykliczny</Button>
+        <Button onClick={() => setCreateOpen(true)}>
+          Dodaj cykliczną transakcję
+        </Button>
       </div>
 
       {toggleError && (
@@ -111,9 +114,11 @@ export function RecurringManager({
 
       {expenses.length === 0 ? (
         <EmptyState
-          description="Brak wydatków cyklicznych. Dodaj pierwszy, np. abonament lub czynsz."
+          description="Brak cyklicznych transakcji. Dodaj pierwszą, np. abonament, czynsz lub wynagrodzenie."
           action={
-            <Button onClick={() => setCreateOpen(true)}>Dodaj cykliczny</Button>
+            <Button onClick={() => setCreateOpen(true)}>
+              Dodaj cykliczną transakcję
+            </Button>
           }
         />
       ) : (
@@ -123,6 +128,7 @@ export function RecurringManager({
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Typ</TableHead>
                     <TableHead>Opis</TableHead>
                     <TableHead>Kategoria</TableHead>
                     <TableHead>Kwota</TableHead>
@@ -290,6 +296,11 @@ function RecurringTableRow({
 
   return (
     <TableRow className={!expense.is_active ? "opacity-60" : undefined}>
+      <TableCell>
+        <Badge variant={expense.type === "income" ? "default" : "secondary"}>
+          {TYPE_LABELS[expense.type ?? "expense"]}
+        </Badge>
+      </TableCell>
       <TableCell className="font-medium">{expense.description || "—"}</TableCell>
       <TableCell>
         <RecurringCategoryCell expense={expense} />
@@ -343,6 +354,9 @@ function RecurringMobileCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={expense.type === "income" ? "default" : "secondary"}>
+            {TYPE_LABELS[expense.type ?? "expense"]}
+          </Badge>
           <RecurringCategoryCell expense={expense} />
           <Badge variant="secondary">
             {FREQUENCY_LABELS[expense.frequency]}

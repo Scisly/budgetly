@@ -16,11 +16,11 @@ export default async function RecurringPage() {
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-2xl font-semibold tracking-tight">
-          Wydatki cykliczne
+          Transakcje cykliczne
         </h2>
         <p className="text-muted-foreground">
-          Automatyczne generowanie powtarzalnych wydatków, np. abonamentów i
-          rachunków.
+          Automatyczne generowanie powtarzalnych wydatków i przychodów, np.
+          abonamentów, rachunków lub wynagrodzenia.
         </p>
       </div>
 

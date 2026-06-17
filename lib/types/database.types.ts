@@ -49,5 +49,6 @@ export interface RecurringExpense {
   frequency: FrequencyType;
   next_occurrence: string;
   is_active: boolean;
+  type: TransactionType;
   created_at: string;
 }

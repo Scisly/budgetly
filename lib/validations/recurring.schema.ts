@@ -8,6 +8,7 @@ export const recurringSchema = z.object({
     message: "Wybierz częstotliwość",
   }),
   next_occurrence: z.string().date("Podaj poprawną datę"),
+  type: z.enum(["expense", "income"]),
 });
 
 export type RecurringInput = z.infer<typeof recurringSchema>;

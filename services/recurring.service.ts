@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { addDays, addMonths, addYears, format, parseISO } from "date-fns";
-import type { Category, FrequencyType, RecurringExpense } from "@/lib/types/database.types";
+import type { Category, FrequencyType, RecurringExpense, TransactionType } from "@/lib/types/database.types";
 import type { RecurringInput } from "@/lib/validations/recurring.schema";
 import { createTransaction } from "@/services/transaction.service";
 
@@ -42,6 +42,10 @@ export function calculateNextOccurrence(
   return format(next, "yyyy-MM-dd");
 }
 
+export function getRecurringDefaultDescription(type: TransactionType): string {
+  return type === "income" ? "Przychód cykliczny" : "Wydatek cykliczny";
+}
+
 export async function getRecurringExpenses(
   supabase: SupabaseClient,
   userId: string
@@ -76,6 +80,7 @@ export async function createRecurringExpense(
       description: input.description,
       frequency: input.frequency,
       next_occurrence: input.next_occurrence,
+      type: input.type,
       is_active: true,
     })
     .select()
@@ -102,6 +107,7 @@ export async function updateRecurringExpense(
       description: input.description,
       frequency: input.frequency,
       next_occurrence: input.next_occurrence,
+      type: input.type,
     })
     .eq("id", id)
     .eq("user_id", userId)
@@ -184,9 +190,11 @@ export async function processRecurringExpenses(
       await createTransaction(supabase, userId, {
         category_id: expense.category_id,
         amount: Number(expense.amount),
-        description: expense.description || "Wydatek cykliczny",
+        description:
+          expense.description ||
+          getRecurringDefaultDescription(expense.type ?? "expense"),
         transaction_date: nextOccurrence,
-        type: "expense",
+        type: expense.type ?? "expense",
       });
       generated++;
       nextOccurrence = calculateNextOccurrence(

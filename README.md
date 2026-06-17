@@ -114,7 +114,7 @@ Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](doc
 | **Transakcje**  | CRUD wydatków/przychodów z filtrami (data, kategoria, typ)       |
 | **Dashboard**   | Podsumowanie miesiąca, wykres kołowy, ostatnie transakcje        |
 | **Budżety**     | Limity per kategoria, pasek postępu, alert przy przekroczeniu    |
-| **Cykliczne**   | CRUD + auto-generowanie transakcji przy wejściu do aplikacji     |
+| **Cykliczne**   | CRUD + auto-generowanie wydatków i przychodów cyklicznych        |
 | **Porównanie**  | Wykres słupkowy i tabela różnic między dwoma miesiącami          |
 | **Eksport CSV** | Pobranie wszystkich transakcji z ustawień                        |
 | **UI**          | Dark mode, responsywność (mobile / tablet / desktop), język PL   |
