@@ -9,17 +9,21 @@ import {
 } from "@/actions/recurring.actions";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { RecurringForm } from "@/components/recurring/recurring-form";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
@@ -86,11 +90,7 @@ export function RecurringManager({
 
   if (categories.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
-        <p className="text-muted-foreground">
-          Najpierw dodaj kategorię, aby utworzyć wydatek cykliczny.
-        </p>
-      </div>
+      <EmptyState description="Najpierw dodaj kategorię, aby utworzyć wydatek cykliczny." />
     );
   }
 
@@ -110,14 +110,12 @@ export function RecurringManager({
       )}
 
       {expenses.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
-          <p className="text-muted-foreground">
-            Brak wydatków cyklicznych. Dodaj pierwszy, np. abonament lub czynsz.
-          </p>
-          <Button className="mt-4" onClick={() => setCreateOpen(true)}>
-            Dodaj cykliczny
-          </Button>
-        </div>
+        <EmptyState
+          description="Brak wydatków cyklicznych. Dodaj pierwszy, np. abonament lub czynsz."
+          action={
+            <Button onClick={() => setCreateOpen(true)}>Dodaj cykliczny</Button>
+          }
+        />
       ) : (
         <>
           <div className="hidden md:block">
@@ -191,40 +189,35 @@ export function RecurringManager({
         />
       )}
 
-      <Dialog
+      <AlertDialog
         open={Boolean(deletingExpense)}
         onOpenChange={(open) => !open && setDeletingExpense(null)}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Usuń wydatek cykliczny</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń wydatek cykliczny</AlertDialogTitle>
+            <AlertDialogDescription>
               Czy na pewno chcesz usunąć „
               {deletingExpense?.description || "ten wydatek"}”? Istniejące
               transakcje pozostaną bez zmian.
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           {deleteError && (
             <p className="text-sm text-destructive">{deleteError}</p>
           )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeletingExpense(null)}
-              disabled={isDeleting}
-            >
-              Anuluj
-            </Button>
-            <Button
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >
-              {isDeleting ? "Usuwanie…" : "Usuń"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {isDeleting ? <Spinner data-icon="inline-start" /> : null}
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
