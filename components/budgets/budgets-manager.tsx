@@ -6,15 +6,19 @@ import { deleteBudgetAction } from "@/actions/budget.actions";
 import { BudgetCard } from "@/components/budgets/budget-card";
 import { BudgetForm } from "@/components/budgets/budget-form";
 import { MonthSelector } from "@/components/dashboard/month-selector";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import type { Category } from "@/lib/types/database.types";
 import type { BudgetProgress } from "@/services/budget.service";
 
@@ -64,14 +68,12 @@ export function BudgetsManager({
       </div>
 
       {budgets.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
-          <p className="text-muted-foreground">
-            Brak budżetów na ten miesiąc. Dodaj pierwszy limit wydatków.
-          </p>
-          <Button className="mt-4" onClick={() => setCreateOpen(true)}>
-            Dodaj budżet
-          </Button>
-        </div>
+        <EmptyState
+          description="Brak budżetów na ten miesiąc. Dodaj pierwszy limit wydatków."
+          action={
+            <Button onClick={() => setCreateOpen(true)}>Dodaj budżet</Button>
+          }
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {budgets.map((item) => (
@@ -112,39 +114,34 @@ export function BudgetsManager({
         />
       )}
 
-      <Dialog
+      <AlertDialog
         open={Boolean(deletingBudget)}
         onOpenChange={(open) => !open && setDeletingBudget(null)}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Usuń budżet</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń budżet</AlertDialogTitle>
+            <AlertDialogDescription>
               Czy na pewno chcesz usunąć budżet „
               {deletingBudget?.category?.name ?? "Budżet ogólny"}”?
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           {deleteError && (
             <p className="text-sm text-destructive">{deleteError}</p>
           )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeletingBudget(null)}
-              disabled={isDeleting}
-            >
-              Anuluj
-            </Button>
-            <Button
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >
-              {isDeleting ? "Usuwanie…" : "Usuń"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {isDeleting ? <Spinner data-icon="inline-start" /> : null}
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

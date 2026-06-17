@@ -9,6 +9,7 @@ import {
   type BudgetActionState,
 } from "@/actions/budget.actions";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -173,7 +174,8 @@ export function BudgetForm({
 
           <DialogFooter>
             <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-              {isPending ? "Zapisywanie…" : mode === "create" ? "Dodaj" : "Zapisz"}
+              {isPending ? <Spinner data-icon="inline-start" /> : null}
+              {mode === "create" ? "Dodaj" : "Zapisz"}
             </Button>
           </DialogFooter>
         </form>
