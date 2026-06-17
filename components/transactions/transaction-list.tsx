@@ -14,6 +14,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { formatAmountInCurrency } from "@/lib/money/format-currency";
+import { BASE_CURRENCY, type CurrencyCode } from "@/lib/money/currencies";
 import {
   formatTransactionDate,
   TYPE_LABELS,
@@ -51,19 +53,34 @@ function CategoryBadge({
 }
 
 function AmountCell({ transaction }: { transaction: TransactionWithCategory }) {
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyCode } = useCurrency();
   const isExpense = transaction.type === "expense";
+  const showOriginalBadge =
+    transaction.currency_code &&
+    transaction.currency_code !== currencyCode &&
+    transaction.currency_code !== BASE_CURRENCY;
+
   return (
-    <span
-      className={
-        isExpense
-          ? "font-medium text-destructive"
-          : "font-medium text-success"
-      }
-    >
-      {isExpense ? "-" : "+"}
-      {formatAmount(Number(transaction.amount))}
-    </span>
+    <div className="flex flex-col items-end gap-1">
+      <span
+        className={
+          isExpense
+            ? "font-medium text-destructive"
+            : "font-medium text-success"
+        }
+      >
+        {isExpense ? "-" : "+"}
+        {formatAmount(Number(transaction.amount_base))}
+      </span>
+      {showOriginalBadge && (
+        <Badge variant="outline" className="text-xs font-normal">
+          {formatAmountInCurrency(
+            Number(transaction.amount),
+            transaction.currency_code as CurrencyCode
+          )}
+        </Badge>
+      )}
+    </div>
   );
 }
 

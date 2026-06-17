@@ -75,7 +75,7 @@ export async function getBudgetProgress(
       .eq("year", year),
     supabase
       .from("transactions")
-      .select("amount, category_id")
+      .select("amount_base, category_id")
       .eq("user_id", userId)
       .eq("type", "expense")
       .gte("transaction_date", dateFrom)
@@ -91,14 +91,14 @@ export async function getBudgetProgress(
 
   const transactions = transactionsResult.data;
   const totalSpent = transactions.reduce(
-    (sum, tx) => sum + Number(tx.amount),
+    (sum, tx) => sum + Number(tx.amount_base),
     0
   );
 
   const spentByCategory = new Map<string, number>();
   for (const tx of transactions) {
     const current = spentByCategory.get(tx.category_id) ?? 0;
-    spentByCategory.set(tx.category_id, current + Number(tx.amount));
+    spentByCategory.set(tx.category_id, current + Number(tx.amount_base));
   }
 
   return budgetsResult.data.map((row) => {
@@ -195,6 +195,22 @@ export async function deleteBudget(
   }
 }
 
+export interface BudgetAlerts {
+  warning: BudgetProgress[];
+  exceeded: BudgetProgress[];
+}
+
+export function getWarningBudgets(progress: BudgetProgress[]): BudgetProgress[] {
+  return progress.filter((item) => item.status === "warning");
+}
+
 export function getExceededBudgets(progress: BudgetProgress[]): BudgetProgress[] {
   return progress.filter((item) => item.status === "exceeded");
+}
+
+export function getBudgetAlerts(progress: BudgetProgress[]): BudgetAlerts {
+  return {
+    warning: getWarningBudgets(progress),
+    exceeded: getExceededBudgets(progress),
+  };
 }

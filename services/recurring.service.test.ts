@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { calculateNextOccurrence } from "@/services/recurring.service";
+import {
+  calculateNextOccurrence,
+  getRecurringDefaultDescription,
+  uniqueUserIds,
+} from "@/services/recurring.service";
 
 describe("calculateNextOccurrence", () => {
   it("adds 1 month for monthly frequency", () => {
@@ -12,5 +16,26 @@ describe("calculateNextOccurrence", () => {
 
   it("adds 1 year for yearly frequency", () => {
     expect(calculateNextOccurrence("2026-05-22", "yearly")).toBe("2027-05-22");
+  });
+});
+
+describe("getRecurringDefaultDescription", () => {
+  it("returns expense default description", () => {
+    expect(getRecurringDefaultDescription("expense")).toBe("Wydatek cykliczny");
+  });
+
+  it("returns income default description", () => {
+    expect(getRecurringDefaultDescription("income")).toBe("Przychód cykliczny");
+  });
+});
+
+describe("uniqueUserIds", () => {
+  it("deduplicates user ids", () => {
+    const rows = [
+      { user_id: "a" },
+      { user_id: "b" },
+      { user_id: "a" },
+    ];
+    expect(uniqueUserIds(rows)).toEqual(["a", "b"]);
   });
 });

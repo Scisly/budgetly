@@ -25,6 +25,7 @@ export async function exportTransactionsAction(): Promise<ExportActionResult> {
       transaction_date: transaction.transaction_date,
       description: transaction.description,
       amount: Number(transaction.amount),
+      currency_code: transaction.currency_code ?? "PLN",
       type: transaction.type,
       category_name: transaction.category?.name ?? "",
     }));

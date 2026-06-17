@@ -43,7 +43,10 @@ erDiagram
         uuid id PK
         uuid user_id FK
         uuid category_id FK
-        decimal amount "CHECK > 0"
+        decimal amount "CHECK > 0, kwota w currency_code"
+        decimal amount_base "CHECK > 0, równowartość PLN"
+        text currency_code "CHECK lista walut"
+        decimal exchange_rate "snapshot kursu"
         text description
         date transaction_date
         transaction_type type "expense | income"

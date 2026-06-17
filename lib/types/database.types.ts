@@ -24,6 +24,9 @@ export interface Transaction {
   user_id: string;
   category_id: string;
   amount: number;
+  amount_base: number;
+  currency_code: string;
+  exchange_rate: number;
   description: string;
   transaction_date: string;
   type: TransactionType;
@@ -49,5 +52,6 @@ export interface RecurringExpense {
   frequency: FrequencyType;
   next_occurrence: string;
   is_active: boolean;
+  type: TransactionType;
   created_at: string;
 }

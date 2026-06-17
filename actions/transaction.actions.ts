@@ -40,6 +40,7 @@ function parseTransactionFormData(formData: FormData) {
     description: description === null || description === "" ? "" : description,
     transaction_date: formData.get("transaction_date"),
     type: formData.get("type"),
+    currency_code: formData.get("currency_code"),
   });
 }
 

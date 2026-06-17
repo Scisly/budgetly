@@ -68,3 +68,15 @@ export function formatCurrencyAmount(
       : { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
   }).format(converted);
 }
+
+export function formatAmountInCurrency(
+  amount: number,
+  currencyCode: CurrencyCode
+): string {
+  return new Intl.NumberFormat(getLocaleForCurrency(currencyCode), {
+    style: "currency",
+    currency: currencyCode,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}

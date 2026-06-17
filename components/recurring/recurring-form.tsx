@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { FREQUENCY_LABELS } from "@/lib/recurring/labels";
-import type { Category, FrequencyType } from "@/lib/types/database.types";
+import { TYPE_LABELS } from "@/lib/transactions/format";
+import type { Category, FrequencyType, TransactionType } from "@/lib/types/database.types";
 import type { RecurringExpenseWithCategory } from "@/services/recurring.service";
 import { useSuccessSound } from "@/hooks/use-success-sound";
 import { useCurrencyAmountInput } from "@/hooks/use-currency-amount-input";
@@ -60,6 +61,7 @@ export function RecurringForm({
   const [frequency, setFrequency] = useState<FrequencyType>(
     expense?.frequency ?? "monthly"
   );
+  const [type, setType] = useState<TransactionType>(expense?.type ?? "expense");
   const [nextOccurrence, setNextOccurrence] = useState(
     expense?.next_occurrence ?? format(new Date(), "yyyy-MM-dd")
   );
@@ -76,6 +78,7 @@ export function RecurringForm({
   ): Promise<RecurringActionState> {
     formData.set("category_id", categoryId);
     formData.set("frequency", frequency);
+    formData.set("type", type);
     applyAmountToFormData(formData);
     if (mode === "create") return createRecurringAction(formData);
     if (!expense?.id) return { error: "Brak identyfikatora wydatku cyklicznego." };
@@ -97,7 +100,9 @@ export function RecurringForm({
   useSuccessSound(state.success);
 
   const title =
-    mode === "create" ? "Dodaj wydatek cykliczny" : "Edytuj wydatek cykliczny";
+    mode === "create"
+      ? "Dodaj cykliczną transakcję"
+      : "Edytuj cykliczną transakcję";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -110,6 +115,29 @@ export function RecurringForm({
         </DialogHeader>
 
         <form action={formAction} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="recurring-type">Typ</Label>
+            <input type="hidden" name="type" value={type} />
+            <Select
+              value={type}
+              onValueChange={(value) =>
+                setType((value as TransactionType) ?? "expense")
+              }
+              items={[
+                { value: "expense", label: TYPE_LABELS.expense },
+                { value: "income", label: TYPE_LABELS.income },
+              ]}
+            >
+              <SelectTrigger id="recurring-type" className="w-full">
+                <SelectValue placeholder="Wybierz typ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="expense">{TYPE_LABELS.expense}</SelectItem>
+                <SelectItem value="income">{TYPE_LABELS.income}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="category_id">Kategoria</Label>
             <Select

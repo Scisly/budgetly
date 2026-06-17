@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { addDays, addMonths, addYears, format, parseISO } from "date-fns";
-import type { Category, FrequencyType, RecurringExpense } from "@/lib/types/database.types";
+import type { Category, FrequencyType, RecurringExpense, TransactionType } from "@/lib/types/database.types";
 import type { RecurringInput } from "@/lib/validations/recurring.schema";
 import { createTransaction } from "@/services/transaction.service";
 
@@ -42,6 +42,10 @@ export function calculateNextOccurrence(
   return format(next, "yyyy-MM-dd");
 }
 
+export function getRecurringDefaultDescription(type: TransactionType): string {
+  return type === "income" ? "Przychód cykliczny" : "Wydatek cykliczny";
+}
+
 export async function getRecurringExpenses(
   supabase: SupabaseClient,
   userId: string
@@ -76,6 +80,7 @@ export async function createRecurringExpense(
       description: input.description,
       frequency: input.frequency,
       next_occurrence: input.next_occurrence,
+      type: input.type,
       is_active: true,
     })
     .select()
@@ -102,6 +107,7 @@ export async function updateRecurringExpense(
       description: input.description,
       frequency: input.frequency,
       next_occurrence: input.next_occurrence,
+      type: input.type,
     })
     .eq("id", id)
     .eq("user_id", userId)
@@ -184,9 +190,12 @@ export async function processRecurringExpenses(
       await createTransaction(supabase, userId, {
         category_id: expense.category_id,
         amount: Number(expense.amount),
-        description: expense.description || "Wydatek cykliczny",
+        currency_code: "PLN",
+        description:
+          expense.description ||
+          getRecurringDefaultDescription(expense.type ?? "expense"),
         transaction_date: nextOccurrence,
-        type: "expense",
+        type: expense.type ?? "expense",
       });
       generated++;
       nextOccurrence = calculateNextOccurrence(
@@ -207,4 +216,30 @@ export async function processRecurringExpenses(
   }
 
   return generated;
+}
+
+export function uniqueUserIds(rows: { user_id: string }[]): string[] {
+  return [...new Set(rows.map((row) => row.user_id))];
+}
+
+export async function processAllUsersRecurringExpenses(
+  supabase: SupabaseClient
+): Promise<{ usersProcessed: number; transactionsGenerated: number }> {
+  const { data: rows, error } = await supabase
+    .from("recurring_expenses")
+    .select("user_id")
+    .eq("is_active", true);
+
+  if (error) {
+    throw new Error("Nie udało się pobrać użytkowników z cyklicznymi transakcjami.");
+  }
+
+  const userIds = uniqueUserIds(rows ?? []);
+  let transactionsGenerated = 0;
+
+  for (const userId of userIds) {
+    transactionsGenerated += await processRecurringExpenses(supabase, userId);
+  }
+
+  return { usersProcessed: userIds.length, transactionsGenerated };
 }

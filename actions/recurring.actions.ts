@@ -40,6 +40,7 @@ function parseRecurringFormData(formData: FormData) {
     description: formData.get("description"),
     frequency: formData.get("frequency"),
     next_occurrence: formData.get("next_occurrence"),
+    type: formData.get("type"),
   });
 }
 

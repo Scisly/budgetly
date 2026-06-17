@@ -54,7 +54,7 @@ function normalizeCategory(
 }
 
 type ExpenseRow = {
-  amount: number;
+  amount_base: number;
   category_id: string;
   category:
     | { name: string; color: string; icon: string }
@@ -69,7 +69,7 @@ function aggregateExpensesByCategory(rows: ExpenseRow[]) {
   >();
 
   for (const row of rows) {
-    const amount = Number(row.amount);
+    const amount = Number(row.amount_base);
     const category = normalizeCategory(row.category);
     const existing = totals.get(row.category_id);
 
@@ -137,7 +137,7 @@ async function getMonthlyExpensesByCategory(
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount, category_id, category:categories(name, color, icon)")
+    .select("amount_base, category_id, category:categories(name, color, icon)")
     .eq("user_id", userId)
     .eq("type", "expense")
     .gte("transaction_date", dateFrom)

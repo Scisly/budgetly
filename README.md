@@ -2,7 +2,7 @@
 
 **Budgetly** to wieloużytkownikowy dziennik wydatków — aplikacja webowa stworzona jako projekt zaliczeniowy z przedmiotu *Programowanie aplikacji internetowych* (WSB).
 
-Umożliwia rejestrowanie wydatków i przychodów, zarządzanie kategoriami, ustawianie budżetów z alertami, automatyzację wydatków cyklicznych, porównywanie miesięcy oraz eksport danych do CSV.
+Umożliwia rejestrowanie wydatków i przychodów, zarządzanie kategoriami, ustawianie budżetów z alertami, automatyzację wydatków cyklicznych, porównywanie miesięcy oraz import i eksport danych do CSV.
 
 ## Stack technologiczny
 
@@ -99,6 +99,8 @@ budgetly/
 - `docs/dokumentacja_projektowa_budgetly_uml.docx` jako rozszerzona dokumentacja projektowa,
 - `docs/database-diagram.md` jako opis i diagram ER bazy danych,
 - `docs/demo-checklist.md` jako scenariusz prezentacji i lista kontroli przed demo.
+- `docs/analytics-module.md` jako opis modułu analityki (metryki, architektura, trade-offs).
+- `docs/multi-currency.md` jako opis modelu wielowalutowego transakcji.
 
 ## Diagram bazy danych
 
@@ -114,8 +116,9 @@ Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](doc
 | **Transakcje**  | CRUD wydatków/przychodów z filtrami (data, kategoria, typ)       |
 | **Dashboard**   | Podsumowanie miesiąca, wykres kołowy, ostatnie transakcje        |
 | **Budżety**     | Limity per kategoria, pasek postępu, alert przy przekroczeniu    |
-| **Cykliczne**   | CRUD + auto-generowanie transakcji przy wejściu do aplikacji     |
+| **Cykliczne**   | CRUD + auto-generowanie wydatków i przychodów cyklicznych        |
 | **Porównanie**  | Wykres słupkowy i tabela różnic między dwoma miesiącami          |
+| **Import CSV**  | Import transakcji z pliku w formacie eksportu Budgetly           |
 | **Eksport CSV** | Pobranie wszystkich transakcji z ustawień                        |
 | **UI**          | Dark mode, responsywność (mobile / tablet / desktop), język PL   |
 
@@ -127,11 +130,13 @@ Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](doc
 3. Dodaj zmienne środowiskowe:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - opcjonalnie `SUPABASE_SERVICE_ROLE_KEY` (rejestracja w dev)
-4. W Supabase → **Authentication → URL Configuration**:
+  - `SUPABASE_SERVICE_ROLE_KEY` (cron + opcjonalna rejestracja w dev)
+  - `CRON_SECRET` (losowy ciąg znaków — zabezpiecza `/api/cron/recurring`)
+4. Cron Vercel uruchamia przetwarzanie transakcji cyklicznych codziennie o 06:00 UTC (`vercel.json`).
+5. W Supabase → **Authentication → URL Configuration**:
   - **Site URL:** `https://twoja-domena.vercel.app`
   - **Redirect URLs:** `https://twoja-domena.vercel.app/`**
-5. Po deployu zweryfikuj logowanie i CRUD na produkcji.
+6. Po deployu zweryfikuj logowanie i CRUD na produkcji.
 
 Checklista przed prezentacją: `[docs/demo-checklist.md](docs/demo-checklist.md)`
 
