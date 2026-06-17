@@ -69,7 +69,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                   }
                 >
                   {tx.type === "expense" ? "−" : "+"}
-                  {formatAmount(tx.amount)}
+                  {formatAmount(tx.amount_base)}
                 </span>
               </li>
             ))}

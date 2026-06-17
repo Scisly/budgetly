@@ -25,6 +25,7 @@ describe("parseTransactionsCsv", () => {
         transaction_date: "2026-05-01",
         description: "Zakupy",
         amount: 50,
+        currency_code: "PLN",
         type: "expense",
         category_name: "Jedzenie",
       },
@@ -37,6 +38,7 @@ describe("parseTransactionsCsv", () => {
         transaction_date: "2026-05-01",
         description: "Zakupy",
         amount: 50,
+        currency_code: "PLN",
         type: "expense",
         category_name: "Jedzenie",
       },
@@ -49,6 +51,7 @@ describe("parseTransactionsCsv", () => {
         transaction_date: "2026-05-01",
         description: "Zakupy, spożywcze",
         amount: 50,
+        currency_code: "PLN",
         type: "expense",
         category_name: "Jedzenie",
       },
@@ -60,13 +63,14 @@ describe("parseTransactionsCsv", () => {
   });
 
   it("rejects invalid header", () => {
-    const result = parseTransactionsCsv("Wrong,Header\n2026-05-01,a,1,expense,b");
+    const result = parseTransactionsCsv("Wrong,Header\n2026-05-01,a,1,PLN,expense,b");
     expect(result.rows).toHaveLength(0);
     expect(result.errors[0]?.message).toContain("Nieprawidłowy nagłówek");
   });
 
   it("rejects invalid type", () => {
-    const csv = "Data,Opis,Kwota,Typ,Kategoria\n2026-05-01,Zakupy,50,invalid,Jedzenie";
+    const csv =
+      "Data,Opis,Kwota,Waluta,Typ,Kategoria\n2026-05-01,Zakupy,50,PLN,invalid,Jedzenie";
     const result = parseTransactionsCsv(csv);
     expect(result.rows).toHaveLength(0);
     expect(result.errors[0]?.message).toContain("Nieprawidłowy typ");
@@ -74,10 +78,18 @@ describe("parseTransactionsCsv", () => {
 
   it("accepts Polish type aliases", () => {
     const csv =
-      "Data,Opis,Kwota,Typ,Kategoria\n2026-05-01,Wynagrodzenie,5000,przychód,Jedzenie";
+      "Data,Opis,Kwota,Waluta,Typ,Kategoria\n2026-05-01,Wynagrodzenie,5000,PLN,przychód,Jedzenie";
     const result = parseTransactionsCsv(csv);
     expect(result.errors).toHaveLength(0);
     expect(result.rows[0]?.type).toBe("income");
+  });
+
+  it("imports legacy CSV without currency column", () => {
+    const csv =
+      "Data,Opis,Kwota,Typ,Kategoria\n2026-05-01,Zakupy,50,expense,Jedzenie";
+    const result = parseTransactionsCsv(csv);
+    expect(result.errors).toHaveLength(0);
+    expect(result.rows[0]?.currency_code).toBe("PLN");
   });
 });
 
@@ -99,6 +111,7 @@ describe("buildTransactionInputs", () => {
           transaction_date: "2026-05-01",
           description: "Zakupy",
           amount: 50,
+          currency_code: "PLN",
           type: "expense",
           category_name: "Transport",
         },

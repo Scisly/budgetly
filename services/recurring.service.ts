@@ -190,6 +190,7 @@ export async function processRecurringExpenses(
       await createTransaction(supabase, userId, {
         category_id: expense.category_id,
         amount: Number(expense.amount),
+        currency_code: "PLN",
         description:
           expense.description ||
           getRecurringDefaultDescription(expense.type ?? "expense"),

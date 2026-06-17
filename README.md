@@ -100,6 +100,7 @@ budgetly/
 - `docs/database-diagram.md` jako opis i diagram ER bazy danych,
 - `docs/demo-checklist.md` jako scenariusz prezentacji i lista kontroli przed demo.
 - `docs/analytics-module.md` jako opis modułu analityki (metryki, architektura, trade-offs).
+- `docs/multi-currency.md` jako opis modelu wielowalutowego transakcji.
 
 ## Diagram bazy danych
 

@@ -1,13 +1,16 @@
 import { z } from "zod";
+import { CURRENCY_CODES, type CurrencyCode } from "@/lib/money/currencies";
 import type { Category } from "@/lib/types/database.types";
 import type { TransactionInput } from "@/lib/validations/transaction.schema";
 
-const CSV_HEADER = "Data,Opis,Kwota,Typ,Kategoria";
+const CSV_HEADER_LEGACY = "Data,Opis,Kwota,Typ,Kategoria";
+const CSV_HEADER = "Data,Opis,Kwota,Waluta,Typ,Kategoria";
 
 const parsedRowSchema = z.object({
   transaction_date: z.string().date("Nieprawidłowa data"),
   description: z.string().max(200, "Opis jest za długi"),
   amount: z.coerce.number().positive("Kwota musi być większa od 0"),
+  currency_code: z.enum(CURRENCY_CODES).default("PLN"),
   type: z.enum(["expense", "income"], { message: "Nieprawidłowy typ" }),
   category_name: z.string().min(1, "Brak kategorii"),
 });
@@ -16,6 +19,7 @@ export interface ParsedCsvRow {
   transaction_date: string;
   description: string;
   amount: number;
+  currency_code: CurrencyCode;
   type: "expense" | "income";
   category_name: string;
 }
@@ -99,7 +103,10 @@ export function parseTransactionsCsv(csv: string): ImportParseResult {
   }
 
   const header = lines[0].trim();
-  if (header !== CSV_HEADER) {
+  const hasCurrencyColumn = header === CSV_HEADER;
+  const isLegacyHeader = header === CSV_HEADER_LEGACY;
+
+  if (!hasCurrencyColumn && !isLegacyHeader) {
     return {
       rows: [],
       errors: [
@@ -111,6 +118,7 @@ export function parseTransactionsCsv(csv: string): ImportParseResult {
     };
   }
 
+  const expectedColumns = hasCurrencyColumn ? 6 : 5;
   const rows: ParsedCsvRow[] = [];
   const errors: ImportRowError[] = [];
 
@@ -118,7 +126,7 @@ export function parseTransactionsCsv(csv: string): ImportParseResult {
     const lineNumber = i + 1;
     const fields = parseCsvLine(lines[i]);
 
-    if (fields.length !== 5) {
+    if (fields.length !== expectedColumns) {
       errors.push({
         line: lineNumber,
         message: "Nieprawidłowa liczba kolumn.",
@@ -126,8 +134,20 @@ export function parseTransactionsCsv(csv: string): ImportParseResult {
       continue;
     }
 
-    const [transaction_date, description, amountRaw, typeRaw, category_name] =
-      fields;
+    let transaction_date: string;
+    let description: string;
+    let amountRaw: string;
+    let currencyCode = "PLN";
+    let typeRaw: string;
+    let category_name: string;
+
+    if (hasCurrencyColumn) {
+      [transaction_date, description, amountRaw, currencyCode, typeRaw, category_name] =
+        fields;
+    } else {
+      [transaction_date, description, amountRaw, typeRaw, category_name] = fields;
+    }
+
     const type = normalizeType(typeRaw);
 
     if (!type) {
@@ -142,6 +162,7 @@ export function parseTransactionsCsv(csv: string): ImportParseResult {
       transaction_date,
       description,
       amount: amountRaw,
+      currency_code: currencyCode.trim().toUpperCase(),
       type,
       category_name,
     });
@@ -191,6 +212,7 @@ export function buildTransactionInputs(
     inputs.push({
       category_id: categoryId,
       amount: row.amount,
+      currency_code: row.currency_code,
       description: row.description,
       transaction_date: row.transaction_date,
       type: row.type,

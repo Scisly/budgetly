@@ -30,9 +30,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSuccessSound } from "@/hooks/use-success-sound";
-import { useCurrencyAmountInput } from "@/hooks/use-currency-amount-input";
 import { CurrencyAmountField } from "@/components/forms/currency-amount-field";
 import { TYPE_LABELS } from "@/lib/transactions/format";
+import {
+  SUPPORTED_CURRENCIES,
+  type CurrencyCode,
+} from "@/lib/money/currencies";
+import { useCurrency } from "@/components/providers/currency-provider";
 import type { Category } from "@/lib/types/database.types";
 import type { TransactionWithCategory } from "@/services/transaction.service";
 
@@ -58,6 +62,7 @@ export function TransactionForm({
   onOpenChange,
 }: TransactionFormProps) {
   const router = useRouter();
+  const { currencyCode: profileCurrency } = useCurrency();
   const defaultCategoryId = transaction?.category_id ?? categories[0]?.id ?? "";
   const defaultType = transaction?.type ?? "expense";
   const defaultDate =
@@ -66,18 +71,25 @@ export function TransactionForm({
   const [categoryId, setCategoryId] = useState(defaultCategoryId);
   const [type, setType] = useState<"expense" | "income">(defaultType);
   const [transactionDate, setTransactionDate] = useState(defaultDate);
-  const {
-    amount,
-    setAmount,
-    currencyCode,
-    applyAmountToFormData,
-  } = useCurrencyAmountInput(transaction?.amount);
+  const [transactionCurrency, setTransactionCurrency] = useState<CurrencyCode>(
+    (transaction?.currency_code as CurrencyCode) ?? profileCurrency
+  );
+  const [amount, setAmount] = useState(
+    transaction?.amount != null && transaction.amount > 0
+      ? String(transaction.amount)
+      : ""
+  );
 
   async function boundAction(
     _prevState: TransactionActionState,
     formData: FormData
   ): Promise<TransactionActionState> {
-    applyAmountToFormData(formData);
+    formData.set("category_id", categoryId);
+    formData.set("currency_code", transactionCurrency);
+    const parsedAmount = amount.replace(",", ".");
+    if (parsedAmount) {
+      formData.set("amount", parsedAmount);
+    }
 
     if (mode === "create") {
       return createTransactionAction(formData);
@@ -170,9 +182,35 @@ export function TransactionForm({
             label="Kwota"
             amount={amount}
             onAmountChange={setAmount}
-            currencyCode={currencyCode}
+            currencyCode={transactionCurrency}
             required
           />
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="transaction-currency">Waluta</Label>
+            <input type="hidden" name="currency_code" value={transactionCurrency} />
+            <Select
+              value={transactionCurrency}
+              onValueChange={(value) => {
+                if (value) setTransactionCurrency(value as CurrencyCode);
+              }}
+              items={SUPPORTED_CURRENCIES.map((currency) => ({
+                value: currency.code,
+                label: currency.label,
+              }))}
+            >
+              <SelectTrigger id="transaction-currency" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.map((currency) => (
+                  <SelectItem key={currency.code} value={currency.code}>
+                    {currency.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="transaction-date">Data</Label>

@@ -50,7 +50,7 @@ export default async function SettingsPage() {
           <h3 className="text-lg font-medium">Import danych</h3>
           <p className="text-sm text-muted-foreground">
             Zaimportuj transakcje z pliku CSV w formacie Budgetly (
-            <code>Data,Opis,Kwota,Typ,Kategoria</code>).
+            <code>Data,Opis,Kwota,Waluta,Typ,Kategoria</code>).
           </p>
         </div>
         <ImportCsvButton />

@@ -39,7 +39,7 @@ function normalizeCategory(
 
 function buildCategoryBreakdown(
   rows: Array<{
-    amount: number;
+    amount_base: number;
     category_id: string;
     category: { name: string; color: string } | { name: string; color: string }[] | null;
   }>
@@ -52,7 +52,7 @@ function buildCategoryBreakdown(
   for (const row of rows) {
     const key = row.category_id;
     const existing = totals.get(key);
-    const amount = Number(row.amount);
+    const amount = Number(row.amount_base);
     const category = normalizeCategory(row.category);
     if (existing) {
       existing.amount += amount;
@@ -91,7 +91,7 @@ export async function getDashboardData(
     getTransactions(supabase, userId, { date_from: dateFrom, date_to: dateTo }),
     supabase
       .from("transactions")
-      .select("amount, category_id, category:categories(name, color)")
+      .select("amount_base, category_id, category:categories(name, color)")
       .eq("user_id", userId)
       .eq("type", "expense")
       .gte("transaction_date", dateFrom)

@@ -1,4 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { BASE_CURRENCY, type CurrencyCode } from "@/lib/money/currencies";
+import { getExchangeRate } from "@/lib/money/exchange-rates";
+import { computeAmountBase } from "@/lib/money/transaction-currency";
 import type { Category, Transaction } from "@/lib/types/database.types";
 import type {
   TransactionFilters,
@@ -27,6 +30,18 @@ function getMonthDateRange(
     dateFrom: `${year}-${monthStr}-01`,
     dateTo: `${year}-${monthStr}-${dayStr}`,
   };
+}
+
+export async function resolveTransactionAmounts(
+  amount: number,
+  currencyCode: CurrencyCode
+): Promise<{ amount_base: number; exchange_rate: number }> {
+  if (currencyCode === BASE_CURRENCY) {
+    return computeAmountBase(amount, currencyCode, 1);
+  }
+
+  const rate = await getExchangeRate(currencyCode, BASE_CURRENCY);
+  return computeAmountBase(amount, currencyCode, rate);
 }
 
 export async function getTransactions(
@@ -68,12 +83,21 @@ export async function createTransaction(
   userId: string,
   input: TransactionInput
 ): Promise<Transaction> {
+  const currencyCode = input.currency_code ?? BASE_CURRENCY;
+  const { amount_base, exchange_rate } = await resolveTransactionAmounts(
+    input.amount,
+    currencyCode
+  );
+
   const { data, error } = await supabase
     .from("transactions")
     .insert({
       user_id: userId,
       category_id: input.category_id,
       amount: input.amount,
+      amount_base,
+      currency_code: currencyCode,
+      exchange_rate,
       description: input.description,
       transaction_date: input.transaction_date,
       type: input.type,
@@ -94,11 +118,20 @@ export async function updateTransaction(
   id: string,
   input: TransactionInput
 ): Promise<Transaction> {
+  const currencyCode = input.currency_code ?? BASE_CURRENCY;
+  const { amount_base, exchange_rate } = await resolveTransactionAmounts(
+    input.amount,
+    currencyCode
+  );
+
   const { data, error } = await supabase
     .from("transactions")
     .update({
       category_id: input.category_id,
       amount: input.amount,
+      amount_base,
+      currency_code: currencyCode,
+      exchange_rate,
       description: input.description,
       transaction_date: input.transaction_date,
       type: input.type,
@@ -144,7 +177,7 @@ export async function getMonthlySummary(
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount, type")
+    .select("amount_base, type")
     .eq("user_id", userId)
     .gte("transaction_date", dateFrom)
     .lte("transaction_date", dateTo);
@@ -157,10 +190,11 @@ export async function getMonthlySummary(
   let totalIncome = 0;
 
   for (const row of data) {
+    const amount = Number(row.amount_base);
     if (row.type === "expense") {
-      totalExpenses += Number(row.amount);
+      totalExpenses += amount;
     } else {
-      totalIncome += Number(row.amount);
+      totalIncome += amount;
     }
   }
 
