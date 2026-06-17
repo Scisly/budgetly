@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { resolveAmountBase } from "@/lib/money/transaction-amounts";
 import type { TransactionWithCategory } from "@/services/transaction.service";
 import { getMonthlySummary, getTransactions } from "@/services/transaction.service";
 
@@ -39,7 +40,8 @@ function normalizeCategory(
 
 function buildCategoryBreakdown(
   rows: Array<{
-    amount_base: number;
+    amount: number;
+    amount_base?: number | null;
     category_id: string;
     category: { name: string; color: string } | { name: string; color: string }[] | null;
   }>
@@ -52,7 +54,7 @@ function buildCategoryBreakdown(
   for (const row of rows) {
     const key = row.category_id;
     const existing = totals.get(key);
-    const amount = Number(row.amount_base);
+    const amount = resolveAmountBase(row);
     const category = normalizeCategory(row.category);
     if (existing) {
       existing.amount += amount;
@@ -91,21 +93,40 @@ export async function getDashboardData(
     getTransactions(supabase, userId, { date_from: dateFrom, date_to: dateTo }),
     supabase
       .from("transactions")
-      .select("amount_base, category_id, category:categories(name, color)")
+      .select("amount, amount_base, category_id, category:categories(name, color)")
       .eq("user_id", userId)
       .eq("type", "expense")
       .gte("transaction_date", dateFrom)
       .lte("transaction_date", dateTo),
   ]);
 
+  let breakdownRows: Array<{
+    amount: number;
+    amount_base?: number | null;
+    category_id: string;
+    category: { name: string; color: string } | { name: string; color: string }[] | null;
+  }> = expenseRows.data ?? [];
+
   if (expenseRows.error) {
-    throw new Error("Nie udało się pobrać danych wykresu.");
+    const legacyRows = await supabase
+      .from("transactions")
+      .select("amount, category_id, category:categories(name, color)")
+      .eq("user_id", userId)
+      .eq("type", "expense")
+      .gte("transaction_date", dateFrom)
+      .lte("transaction_date", dateTo);
+
+    if (legacyRows.error) {
+      throw new Error("Nie udało się pobrać danych wykresu.");
+    }
+
+    breakdownRows = legacyRows.data ?? [];
   }
 
   return {
     ...summary,
     transactionCount: transactions.length,
-    categoryBreakdown: buildCategoryBreakdown(expenseRows.data ?? []),
+    categoryBreakdown: buildCategoryBreakdown(breakdownRows),
     recentTransactions: transactions.slice(0, 5),
   };
 }
