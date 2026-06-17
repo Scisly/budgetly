@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { loginAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Card,
   CardContent,
@@ -65,7 +66,8 @@ export function LoginForm() {
             </p>
           )}
           <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? "Logowanie…" : "Zaloguj"}
+            {isPending ? <Spinner data-icon="inline-start" /> : null}
+            Zaloguj
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Nie masz konta?{" "}
