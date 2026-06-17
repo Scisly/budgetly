@@ -6,15 +6,19 @@ import { deleteTransactionAction } from "@/actions/transaction.actions";
 import { TransactionFiltersBar } from "@/components/transactions/transaction-filters";
 import { TransactionForm } from "@/components/transactions/transaction-form";
 import { TransactionList } from "@/components/transactions/transaction-list";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { TYPE_LABELS } from "@/lib/transactions/format";
 import type { Category } from "@/lib/types/database.types";
 import type { TransactionFilters } from "@/lib/validations/transaction.schema";
@@ -82,18 +86,18 @@ export function TransactionsManager({
       )}
 
       {transactions.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
-          <p className="text-muted-foreground">
-            {hasActiveFilters
+        <EmptyState
+          description={
+            hasActiveFilters
               ? "Brak transakcji spełniających wybrane filtry."
-              : "Brak transakcji. Dodaj pierwszą transakcję."}
-          </p>
-          {!hasActiveFilters && categories.length > 0 && (
-            <Button className="mt-4" onClick={() => setCreateOpen(true)}>
-              Dodaj transakcję
-            </Button>
-          )}
-        </div>
+              : "Brak transakcji. Dodaj pierwszą transakcję."
+          }
+          action={
+            !hasActiveFilters && categories.length > 0 ? (
+              <Button onClick={() => setCreateOpen(true)}>Dodaj transakcję</Button>
+            ) : undefined
+          }
+        />
       ) : (
         <TransactionList
           transactions={transactions}
@@ -127,7 +131,7 @@ export function TransactionsManager({
         />
       )}
 
-      <Dialog
+      <AlertDialog
         open={Boolean(deletingTransaction)}
         onOpenChange={(open) => {
           if (!open) {
@@ -136,18 +140,18 @@ export function TransactionsManager({
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Usuń transakcję</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń transakcję</AlertDialogTitle>
+            <AlertDialogDescription>
               Czy na pewno chcesz usunąć transakcję{" "}
               <strong>
                 {deletingTransaction?.description ||
                   TYPE_LABELS[deletingTransaction?.type ?? "expense"]}
               </strong>
               ? Tej operacji nie można cofnąć.
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
           {deleteError && (
             <p className="text-sm text-destructive" role="alert">
@@ -155,26 +159,19 @@ export function TransactionsManager({
             </p>
           )}
 
-          <DialogFooter className="px-0 pb-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDeletingTransaction(null)}
-              disabled={isDeleting}
-            >
-              Anuluj
-            </Button>
-            <Button
-              type="button"
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >
-              {isDeleting ? "Usuwanie…" : "Usuń"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {isDeleting ? <Spinner data-icon="inline-start" /> : null}
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

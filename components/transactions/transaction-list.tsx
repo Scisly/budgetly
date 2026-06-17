@@ -58,7 +58,7 @@ function AmountCell({ transaction }: { transaction: TransactionWithCategory }) {
       className={
         isExpense
           ? "font-medium text-destructive"
-          : "font-medium text-emerald-600 dark:text-emerald-400"
+          : "font-medium text-success"
       }
     >
       {isExpense ? "-" : "+"}
