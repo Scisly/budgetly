@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { BASE_CURRENCY, type CurrencyCode } from "@/lib/money/currencies";
 import { ExportCsvButton } from "@/components/settings/export-csv-button";
+import { ImportCsvButton } from "@/components/settings/import-csv-button";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { CurrencySelector } from "@/components/settings/currency-selector";
 import { getProfileCurrency } from "@/services/currency.service";
@@ -20,7 +21,7 @@ export default async function SettingsPage() {
       <div className="space-y-1">
         <h2 className="text-2xl font-semibold tracking-tight">Ustawienia</h2>
         <p className="text-muted-foreground">
-          Zarządzaj wyglądem aplikacji, walutą i eksportem danych.
+          Zarządzaj wyglądem aplikacji, walutą oraz importem i eksportem danych.
         </p>
       </div>
 
@@ -42,6 +43,17 @@ export default async function SettingsPage() {
           </p>
         </div>
         <CurrencySelector key={currentCurrency} currentCurrency={currentCurrency} />
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-border bg-card p-6">
+        <div className="space-y-1">
+          <h3 className="text-lg font-medium">Import danych</h3>
+          <p className="text-sm text-muted-foreground">
+            Zaimportuj transakcje z pliku CSV w formacie Budgetly (
+            <code>Data,Opis,Kwota,Typ,Kategoria</code>).
+          </p>
+        </div>
+        <ImportCsvButton />
       </section>
 
       <section className="space-y-4 rounded-xl border border-border bg-card p-6">

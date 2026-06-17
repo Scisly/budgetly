@@ -2,7 +2,7 @@
 
 **Budgetly** to wieloużytkownikowy dziennik wydatków — aplikacja webowa stworzona jako projekt zaliczeniowy z przedmiotu *Programowanie aplikacji internetowych* (WSB).
 
-Umożliwia rejestrowanie wydatków i przychodów, zarządzanie kategoriami, ustawianie budżetów z alertami, automatyzację wydatków cyklicznych, porównywanie miesięcy oraz eksport danych do CSV.
+Umożliwia rejestrowanie wydatków i przychodów, zarządzanie kategoriami, ustawianie budżetów z alertami, automatyzację wydatków cyklicznych, porównywanie miesięcy oraz import i eksport danych do CSV.
 
 ## Stack technologiczny
 
@@ -116,6 +116,7 @@ Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](doc
 | **Budżety**     | Limity per kategoria, pasek postępu, alert przy przekroczeniu    |
 | **Cykliczne**   | CRUD + auto-generowanie wydatków i przychodów cyklicznych        |
 | **Porównanie**  | Wykres słupkowy i tabela różnic między dwoma miesiącami          |
+| **Import CSV**  | Import transakcji z pliku w formacie eksportu Budgetly           |
 | **Eksport CSV** | Pobranie wszystkich transakcji z ustawień                        |
 | **UI**          | Dark mode, responsywność (mobile / tablet / desktop), język PL   |
 
