@@ -6,16 +6,20 @@ import { PencilIcon, Trash2Icon } from "lucide-react";
 import { deleteCategoryAction } from "@/actions/category.actions";
 import { CategoryForm } from "@/components/categories/category-form";
 import { CategoryIcon } from "@/components/categories/category-icon";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -76,15 +80,13 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
 
   if (initialCategories.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
-          <p className="text-muted-foreground">
-            Brak kategorii. Dodaj pierwszą kategorię.
-          </p>
-          <Button className="mt-4" onClick={() => setCreateOpen(true)}>
-            Dodaj kategorię
-          </Button>
-        </div>
+      <div className="flex flex-col gap-4">
+        <EmptyState
+          description="Brak kategorii. Dodaj pierwszą kategorię."
+          action={
+            <Button onClick={() => setCreateOpen(true)}>Dodaj kategorię</Button>
+          }
+        />
 
         {createOpen && (
           <CategoryForm
@@ -199,7 +201,7 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
         />
       )}
 
-      <Dialog
+      <AlertDialog
         open={Boolean(deletingCategory)}
         onOpenChange={(open) => {
           if (!open) {
@@ -208,15 +210,15 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Usuń kategorię</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń kategorię</AlertDialogTitle>
+            <AlertDialogDescription>
               Czy na pewno chcesz usunąć kategorię{" "}
               <strong>{deletingCategory?.name}</strong>? Tej operacji nie można
               cofnąć.
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
           {deleteError && (
             <p className="text-sm text-destructive" role="alert">
@@ -224,26 +226,19 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
             </p>
           )}
 
-          <DialogFooter className="px-0 pb-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDeletingCategory(null)}
-              disabled={isDeleting}
-            >
-              Anuluj
-            </Button>
-            <Button
-              type="button"
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >
-              {isDeleting ? "Usuwanie…" : "Usuń"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {isDeleting ? <Spinner data-icon="inline-start" /> : null}
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

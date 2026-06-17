@@ -10,6 +10,7 @@ import {
 } from "@/actions/category.actions";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -200,7 +201,8 @@ export function CategoryForm({
               Anuluj
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Zapisywanie…" : submitLabel}
+              {isPending ? <Spinner data-icon="inline-start" /> : null}
+              {submitLabel}
             </Button>
           </DialogFooter>
         </form>
