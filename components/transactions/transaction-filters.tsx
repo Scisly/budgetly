@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { TYPE_LABELS } from "@/lib/transactions/format";
 import type { Category } from "@/lib/types/database.types";
 import type { TransactionFilters } from "@/lib/validations/transaction.schema";
@@ -26,6 +27,7 @@ export function TransactionFiltersBar({
   currentFilters,
 }: TransactionFiltersProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [dateFrom, setDateFrom] = useState(currentFilters.date_from ?? "");
   const [dateTo, setDateTo] = useState(currentFilters.date_to ?? "");
   const [categoryId, setCategoryId] = useState(currentFilters.category_id ?? "");
@@ -40,7 +42,9 @@ export function TransactionFiltersBar({
     if (type) params.set("type", type);
 
     const query = params.toString();
-    router.push(query ? `/transactions?${query}` : "/transactions");
+    startTransition(() => {
+      router.push(query ? `/transactions?${query}` : "/transactions");
+    });
   }
 
   function handleClear() {
@@ -48,7 +52,9 @@ export function TransactionFiltersBar({
     setDateTo("");
     setCategoryId("");
     setType("");
-    router.push("/transactions");
+    startTransition(() => {
+      router.push("/transactions");
+    });
   }
 
   return (
@@ -61,6 +67,7 @@ export function TransactionFiltersBar({
             value={dateFrom}
             onChange={setDateFrom}
             placeholder="Od"
+            disabled={isPending}
           />
         </div>
 
@@ -71,6 +78,7 @@ export function TransactionFiltersBar({
             value={dateTo}
             onChange={setDateTo}
             placeholder="Do"
+            disabled={isPending}
           />
         </div>
 
@@ -81,6 +89,7 @@ export function TransactionFiltersBar({
             onValueChange={(value) =>
               setCategoryId(!value || value === "all" ? "" : value)
             }
+            disabled={isPending}
             items={[
               { value: "all", label: "Wszystkie" },
               ...categories.map((category) => ({
@@ -112,6 +121,7 @@ export function TransactionFiltersBar({
                 !value || value === "all" ? "" : (value as "expense" | "income")
               )
             }
+            disabled={isPending}
             items={[
               { value: "all", label: "Wszystkie" },
               { value: "expense", label: TYPE_LABELS.expense },
@@ -131,10 +141,17 @@ export function TransactionFiltersBar({
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" onClick={handleApply}>
+        <Button type="button" onClick={handleApply} disabled={isPending}>
+          {isPending ? <Spinner data-icon="inline-start" /> : null}
           Filtruj
         </Button>
-        <Button type="button" variant="outline" onClick={handleClear}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleClear}
+          disabled={isPending}
+        >
+          {isPending ? <Spinner data-icon="inline-start" /> : null}
           Wyczyść
         </Button>
       </div>

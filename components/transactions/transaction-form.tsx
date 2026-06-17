@@ -10,6 +10,7 @@ import {
 } from "@/actions/transaction.actions";
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -237,7 +238,8 @@ export function TransactionForm({
               Anuluj
             </Button>
             <Button type="submit" disabled={isPending || !categoryId || !amount}>
-              {isPending ? "Zapisywanie…" : submitLabel}
+              {isPending ? <Spinner data-icon="inline-start" /> : null}
+              {submitLabel}
             </Button>
           </DialogFooter>
         </form>
