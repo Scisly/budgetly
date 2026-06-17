@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { DownloadIcon } from "lucide-react";
 import { exportTransactionsAction } from "@/actions/export.actions";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 export function ExportCsvButton() {
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +40,8 @@ export function ExportCsvButton() {
         disabled={isPending}
       >
         <DownloadIcon className="size-4" />
-        {isPending ? "Eksportowanie…" : "Eksportuj CSV"}
+        {isPending ? <Spinner data-icon="inline-start" /> : null}
+        Eksportuj CSV
       </Button>
       {error && (
         <p className="text-sm text-destructive" role="alert">

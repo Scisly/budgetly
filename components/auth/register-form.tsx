@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { registerAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Card,
   CardContent,
@@ -74,12 +75,13 @@ export function RegisterForm() {
             </p>
           )}
           {state?.message && (
-            <p className="text-sm text-green-600 dark:text-green-400" role="status">
+            <p className="text-sm text-success" role="status">
               {state.message}
             </p>
           )}
           <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? "Rejestracja…" : "Zarejestruj"}
+            {isPending ? <Spinner data-icon="inline-start" /> : null}
+            Zarejestruj
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Masz już konto?{" "}
