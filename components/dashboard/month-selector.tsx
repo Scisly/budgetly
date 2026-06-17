@@ -1,10 +1,12 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 interface MonthSelectorProps {
   month: number;
@@ -18,6 +20,7 @@ export function MonthSelector({
   basePath = "/dashboard",
 }: MonthSelectorProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const label = format(new Date(year, month - 1, 1), "LLLL yyyy", {
     locale: pl,
   });
@@ -34,7 +37,9 @@ export function MonthSelector({
       newYear -= 1;
     }
 
-    router.push(`${basePath}?month=${newMonth}&year=${newYear}`);
+    startTransition(() => {
+      router.push(`${basePath}?month=${newMonth}&year=${newYear}`);
+    });
   }
 
   return (
@@ -44,9 +49,14 @@ export function MonthSelector({
         variant="outline"
         size="icon-sm"
         onClick={() => navigate(-1)}
+        disabled={isPending}
         aria-label="Poprzedni miesiąc"
       >
-        <ChevronLeftIcon className="size-4" />
+        {isPending ? (
+          <Spinner data-icon="inline-start" />
+        ) : (
+          <ChevronLeftIcon className="size-4" />
+        )}
       </Button>
       <span className="min-w-36 text-center text-sm font-medium capitalize">
         {label}
@@ -56,9 +66,14 @@ export function MonthSelector({
         variant="outline"
         size="icon-sm"
         onClick={() => navigate(1)}
+        disabled={isPending}
         aria-label="Następny miesiąc"
       >
-        <ChevronRightIcon className="size-4" />
+        {isPending ? (
+          <Spinner data-icon="inline-start" />
+        ) : (
+          <ChevronRightIcon className="size-4" />
+        )}
       </Button>
     </div>
   );

@@ -1,10 +1,12 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ComparePeriodSelectorProps {
   period: 1 | 2;
@@ -28,6 +30,7 @@ export function ComparePeriodSelector({
   title,
 }: ComparePeriodSelectorProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const label = format(new Date(year, month - 1, 1), "LLLL yyyy", {
     locale: pl,
   });
@@ -57,11 +60,13 @@ export function ComparePeriodSelector({
       params.set("year2", String(newYear));
     }
 
-    router.push(`/compare?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/compare?${params.toString()}`);
+    });
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <p className="text-sm font-medium text-muted-foreground">{title}</p>
       <div className="flex items-center gap-2">
         <Button
@@ -69,9 +74,14 @@ export function ComparePeriodSelector({
           variant="outline"
           size="icon-sm"
           onClick={() => navigate(-1)}
+          disabled={isPending}
           aria-label={`Poprzedni miesiąc (${title})`}
         >
-          <ChevronLeftIcon className="size-4" />
+          {isPending ? (
+            <Spinner data-icon="inline-start" />
+          ) : (
+            <ChevronLeftIcon className="size-4" />
+          )}
         </Button>
         <span className="min-w-36 text-center text-sm font-medium capitalize">
           {label}
@@ -81,9 +91,14 @@ export function ComparePeriodSelector({
           variant="outline"
           size="icon-sm"
           onClick={() => navigate(1)}
+          disabled={isPending}
           aria-label={`Następny miesiąc (${title})`}
         >
-          <ChevronRightIcon className="size-4" />
+          {isPending ? (
+            <Spinner data-icon="inline-start" />
+          ) : (
+            <ChevronRightIcon className="size-4" />
+          )}
         </Button>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {
 } from "recharts";
 import type { CategoryBreakdown } from "@/services/dashboard.service";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { EmptyState } from "@/components/shared/empty-state";
 
 interface CategoryPieChartProps {
   data: CategoryBreakdown[];
@@ -37,9 +38,10 @@ function ChartTooltip({
 export function CategoryPieChart({ data }: CategoryPieChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 text-sm text-muted-foreground">
-        Brak wydatków w tym miesiącu.
-      </div>
+      <EmptyState
+        compact
+        description="Brak wydatków w tym miesiącu."
+      />
     );
   }
 

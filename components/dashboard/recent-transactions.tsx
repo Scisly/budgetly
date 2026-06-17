@@ -65,7 +65,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                   className={
                     tx.type === "expense"
                       ? "shrink-0 font-medium text-destructive"
-                      : "shrink-0 font-medium text-emerald-600 dark:text-emerald-400"
+                      : "shrink-0 font-medium text-success"
                   }
                 >
                   {tx.type === "expense" ? "−" : "+"}

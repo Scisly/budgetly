@@ -31,16 +31,14 @@ export function DashboardStats({
       title: "Przychody",
       value: formatAmount(totalIncome),
       icon: ArrowUpIcon,
-      className: "text-emerald-600 dark:text-emerald-400",
+      className: "text-success",
     },
     {
       title: "Bilans",
       value: formatAmount(balance),
       icon: ScaleIcon,
       className:
-        balance >= 0
-          ? "text-emerald-600 dark:text-emerald-400"
-          : "text-destructive",
+        balance >= 0 ? "text-success" : "text-destructive",
     },
   ];
 

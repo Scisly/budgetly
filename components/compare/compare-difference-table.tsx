@@ -1,6 +1,7 @@
 "use client";
 
 import { CategoryIcon } from "@/components/categories/category-icon";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCurrency } from "@/components/providers/currency-provider";
 import {
@@ -24,7 +25,7 @@ interface CompareDifferenceTableProps {
 function differenceClassName(value: number) {
   return cn(
     value > 0 && "text-destructive",
-    value < 0 && "text-emerald-600 dark:text-emerald-400"
+    value < 0 && "text-success"
   );
 }
 
@@ -45,9 +46,10 @@ export function CompareDifferenceTable({
 
   if (comparison.categories.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-8 text-center text-sm text-muted-foreground">
-        Brak wydatków do porównania w wybranych miesiącach.
-      </div>
+      <EmptyState
+        compact
+        description="Brak wydatków do porównania w wybranych miesiącach."
+      />
     );
   }
 
