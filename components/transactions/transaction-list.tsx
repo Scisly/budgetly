@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { useCurrency } from "@/components/providers/currency-provider";
 import { formatAmountInCurrency } from "@/lib/money/format-currency";
+import { resolveAmountBase } from "@/lib/money/transaction-amounts";
 import { BASE_CURRENCY, type CurrencyCode } from "@/lib/money/currencies";
 import {
   formatTransactionDate,
@@ -70,7 +71,7 @@ function AmountCell({ transaction }: { transaction: TransactionWithCategory }) {
         }
       >
         {isExpense ? "-" : "+"}
-        {formatAmount(Number(transaction.amount_base))}
+        {formatAmount(resolveAmountBase(transaction))}
       </span>
       {showOriginalBadge && (
         <Badge variant="outline" className="text-xs font-normal">

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { resolveAmountBase, type AmountRow } from "@/lib/money/transaction-amounts";
 import type { Budget, Category } from "@/lib/types/database.types";
 import type { BudgetInput } from "@/lib/validations/budget.schema";
 
@@ -75,7 +76,7 @@ export async function getBudgetProgress(
       .eq("year", year),
     supabase
       .from("transactions")
-      .select("amount_base, category_id")
+      .select("amount, amount_base, category_id")
       .eq("user_id", userId)
       .eq("type", "expense")
       .gte("transaction_date", dateFrom)
@@ -85,20 +86,35 @@ export async function getBudgetProgress(
   if (budgetsResult.error) {
     throw new Error("Nie udało się pobrać budżetów.");
   }
+
+  let transactions: Array<AmountRow & { category_id: string }> =
+    transactionsResult.data ?? [];
+
   if (transactionsResult.error) {
-    throw new Error("Nie udało się obliczyć postępu budżetu.");
+    const legacyResult = await supabase
+      .from("transactions")
+      .select("amount, category_id")
+      .eq("user_id", userId)
+      .eq("type", "expense")
+      .gte("transaction_date", dateFrom)
+      .lte("transaction_date", dateTo);
+
+    if (legacyResult.error) {
+      throw new Error("Nie udało się obliczyć postępu budżetu.");
+    }
+
+    transactions = legacyResult.data ?? [];
   }
 
-  const transactions = transactionsResult.data;
   const totalSpent = transactions.reduce(
-    (sum, tx) => sum + Number(tx.amount_base),
+    (sum, tx) => sum + resolveAmountBase(tx),
     0
   );
 
   const spentByCategory = new Map<string, number>();
   for (const tx of transactions) {
     const current = spentByCategory.get(tx.category_id) ?? 0;
-    spentByCategory.set(tx.category_id, current + Number(tx.amount_base));
+    spentByCategory.set(tx.category_id, current + resolveAmountBase(tx));
   }
 
   return budgetsResult.data.map((row) => {

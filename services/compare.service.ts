@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { resolveAmountBase } from "@/lib/money/transaction-amounts";
 
 export interface CategoryComparison {
   category_id: string;
@@ -54,7 +55,8 @@ function normalizeCategory(
 }
 
 type ExpenseRow = {
-  amount_base: number;
+  amount: number;
+  amount_base?: number | null;
   category_id: string;
   category:
     | { name: string; color: string; icon: string }
@@ -69,7 +71,7 @@ function aggregateExpensesByCategory(rows: ExpenseRow[]) {
   >();
 
   for (const row of rows) {
-    const amount = Number(row.amount_base);
+    const amount = resolveAmountBase(row);
     const category = normalizeCategory(row.category);
     const existing = totals.get(row.category_id);
 
@@ -137,14 +139,26 @@ async function getMonthlyExpensesByCategory(
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount_base, category_id, category:categories(name, color, icon)")
+    .select("amount, amount_base, category_id, category:categories(name, color, icon)")
     .eq("user_id", userId)
     .eq("type", "expense")
     .gte("transaction_date", dateFrom)
     .lte("transaction_date", dateTo);
 
   if (error) {
-    throw new Error("Nie udało się pobrać wydatków do porównania.");
+    const { data: legacyData, error: legacyError } = await supabase
+      .from("transactions")
+      .select("amount, category_id, category:categories(name, color, icon)")
+      .eq("user_id", userId)
+      .eq("type", "expense")
+      .gte("transaction_date", dateFrom)
+      .lte("transaction_date", dateTo);
+
+    if (legacyError) {
+      throw new Error("Nie udało się pobrać wydatków do porównania.");
+    }
+
+    return aggregateExpensesByCategory(legacyData ?? []);
   }
 
   return aggregateExpensesByCategory(data ?? []);

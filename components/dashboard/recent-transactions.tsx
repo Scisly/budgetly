@@ -5,6 +5,7 @@ import { CategoryIcon } from "@/components/categories/category-icon";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrency } from "@/components/providers/currency-provider";
+import { resolveAmountBase } from "@/lib/money/transaction-amounts";
 import {
   formatTransactionDate,
   TYPE_LABELS,
@@ -69,7 +70,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                   }
                 >
                   {tx.type === "expense" ? "−" : "+"}
-                  {formatAmount(tx.amount_base)}
+                  {formatAmount(resolveAmountBase(tx))}
                 </span>
               </li>
             ))}

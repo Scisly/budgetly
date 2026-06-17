@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { BASE_CURRENCY, type CurrencyCode } from "@/lib/money/currencies";
 import { getExchangeRate } from "@/lib/money/exchange-rates";
 import { computeAmountBase } from "@/lib/money/transaction-currency";
+import { resolveAmountBase } from "@/lib/money/transaction-amounts";
 import type { Category, Transaction } from "@/lib/types/database.types";
 import type {
   TransactionFilters,
@@ -75,7 +76,15 @@ export async function getTransactions(
     throw new Error("Nie udało się pobrać transakcji.");
   }
 
-  return data;
+  return data.map((row) => {
+    const transaction = row as TransactionWithCategory;
+    return {
+      ...transaction,
+      amount_base: resolveAmountBase(transaction),
+      currency_code: transaction.currency_code ?? BASE_CURRENCY,
+      exchange_rate: Number(transaction.exchange_rate) || 1,
+    };
+  });
 }
 
 export async function createTransaction(
@@ -177,20 +186,47 @@ export async function getMonthlySummary(
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount_base, type")
+    .select("amount, amount_base, type")
     .eq("user_id", userId)
     .gte("transaction_date", dateFrom)
     .lte("transaction_date", dateTo);
 
   if (error) {
-    throw new Error("Nie udało się pobrać podsumowania miesiąca.");
+    const { data: legacyData, error: legacyError } = await supabase
+      .from("transactions")
+      .select("amount, type")
+      .eq("user_id", userId)
+      .gte("transaction_date", dateFrom)
+      .lte("transaction_date", dateTo);
+
+    if (legacyError) {
+      throw new Error("Nie udało się pobrać podsumowania miesiąca.");
+    }
+
+    let totalExpenses = 0;
+    let totalIncome = 0;
+
+    for (const row of legacyData) {
+      const amount = resolveAmountBase(row);
+      if (row.type === "expense") {
+        totalExpenses += amount;
+      } else {
+        totalIncome += amount;
+      }
+    }
+
+    return {
+      totalExpenses,
+      totalIncome,
+      balance: totalIncome - totalExpenses,
+    };
   }
 
   let totalExpenses = 0;
   let totalIncome = 0;
 
   for (const row of data) {
-    const amount = Number(row.amount_base);
+    const amount = resolveAmountBase(row);
     if (row.type === "expense") {
       totalExpenses += amount;
     } else {
