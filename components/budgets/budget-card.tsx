@@ -2,6 +2,11 @@
 
 import { CategoryIcon } from "@/components/categories/category-icon";
 import { useCurrency } from "@/components/providers/currency-provider";
+import {
+  Progress,
+  ProgressIndicator,
+  ProgressTrack,
+} from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { BudgetProgress } from "@/services/budget.service";
 
@@ -13,13 +18,13 @@ interface BudgetCardProps {
 
 const STATUS_STYLES = {
   ok: {
-    progress: "bg-emerald-500",
-    badge: "text-emerald-600 dark:text-emerald-400",
+    progress: "bg-success",
+    badge: "text-success",
     label: "W normie",
   },
   warning: {
-    progress: "bg-amber-500",
-    badge: "text-amber-600 dark:text-amber-400",
+    progress: "bg-warning",
+    badge: "text-warning",
     label: "Blisko limitu",
   },
   exceeded: {
@@ -83,12 +88,11 @@ export function BudgetCard({ item, onEdit, onDelete }: BudgetCardProps) {
           </span>
           <span className="font-medium">{item.percentage}%</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-muted">
-          <div
-            className={cn("h-full transition-all", styles.progress)}
-            style={{ width: `${Math.min(item.percentage, 100)}%` }}
-          />
-        </div>
+        <Progress value={Math.min(item.percentage, 100)} className="gap-0">
+          <ProgressTrack className="h-2">
+            <ProgressIndicator className={styles.progress} />
+          </ProgressTrack>
+        </Progress>
       </div>
     </div>
   );
