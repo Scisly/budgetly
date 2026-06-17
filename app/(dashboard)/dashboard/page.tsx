@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardData } from "@/services/dashboard.service";
-import { getBudgetProgress, getExceededBudgets } from "@/services/budget.service";
+import { getBudgetProgress, getBudgetAlerts } from "@/services/budget.service";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { MonthSelector } from "@/components/dashboard/month-selector";
 import { CategoryBreakdownList } from "@/components/dashboard/category-breakdown";
@@ -54,7 +54,7 @@ export default async function DashboardPage({
   const budgetProgress = user
     ? await getBudgetProgress(supabase, user.id, month, year)
     : [];
-  const exceededBudgets = getExceededBudgets(budgetProgress);
+  const budgetAlerts = getBudgetAlerts(budgetProgress);
 
   return (
     <div className="space-y-6">
@@ -68,7 +68,7 @@ export default async function DashboardPage({
         <MonthSelector month={month} year={year} />
       </div>
 
-      <BudgetAlertBanner exceededBudgets={exceededBudgets} />
+      <BudgetAlertBanner alerts={budgetAlerts} />
 
       <DashboardStats
         totalExpenses={data.totalExpenses}

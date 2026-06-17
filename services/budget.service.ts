@@ -195,6 +195,22 @@ export async function deleteBudget(
   }
 }
 
+export interface BudgetAlerts {
+  warning: BudgetProgress[];
+  exceeded: BudgetProgress[];
+}
+
+export function getWarningBudgets(progress: BudgetProgress[]): BudgetProgress[] {
+  return progress.filter((item) => item.status === "warning");
+}
+
 export function getExceededBudgets(progress: BudgetProgress[]): BudgetProgress[] {
   return progress.filter((item) => item.status === "exceeded");
+}
+
+export function getBudgetAlerts(progress: BudgetProgress[]): BudgetAlerts {
+  return {
+    warning: getWarningBudgets(progress),
+    exceeded: getExceededBudgets(progress),
+  };
 }
