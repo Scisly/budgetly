@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   calculateNextOccurrence,
   getRecurringDefaultDescription,
+  uniqueUserIds,
 } from "@/services/recurring.service";
 
 describe("calculateNextOccurrence", () => {
@@ -25,5 +26,16 @@ describe("getRecurringDefaultDescription", () => {
 
   it("returns income default description", () => {
     expect(getRecurringDefaultDescription("income")).toBe("Przychód cykliczny");
+  });
+});
+
+describe("uniqueUserIds", () => {
+  it("deduplicates user ids", () => {
+    const rows = [
+      { user_id: "a" },
+      { user_id: "b" },
+      { user_id: "a" },
+    ];
+    expect(uniqueUserIds(rows)).toEqual(["a", "b"]);
   });
 });

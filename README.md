@@ -127,11 +127,13 @@ Szczegółowy diagram ER (Mermaid) i opis tabel: `[docs/database-diagram.md](doc
 3. Dodaj zmienne środowiskowe:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - opcjonalnie `SUPABASE_SERVICE_ROLE_KEY` (rejestracja w dev)
-4. W Supabase → **Authentication → URL Configuration**:
+  - `SUPABASE_SERVICE_ROLE_KEY` (cron + opcjonalna rejestracja w dev)
+  - `CRON_SECRET` (losowy ciąg znaków — zabezpiecza `/api/cron/recurring`)
+4. Cron Vercel uruchamia przetwarzanie transakcji cyklicznych codziennie o 06:00 UTC (`vercel.json`).
+5. W Supabase → **Authentication → URL Configuration**:
   - **Site URL:** `https://twoja-domena.vercel.app`
   - **Redirect URLs:** `https://twoja-domena.vercel.app/`**
-5. Po deployu zweryfikuj logowanie i CRUD na produkcji.
+6. Po deployu zweryfikuj logowanie i CRUD na produkcji.
 
 Checklista przed prezentacją: `[docs/demo-checklist.md](docs/demo-checklist.md)`
 

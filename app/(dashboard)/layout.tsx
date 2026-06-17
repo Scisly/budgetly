@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { processRecurringExpenses } from "@/services/recurring.service";
 import { getDisplayCurrencyContext } from "@/services/currency.service";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { DashboardPageTransition } from "@/components/layout/dashboard-page-transition";
@@ -16,14 +15,6 @@ export default async function DashboardLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  if (user) {
-    try {
-      await processRecurringExpenses(supabase, user.id);
-    } catch {
-      // Nie blokuj layoutu — błąd przetwarzania nie powinien ukryć całej aplikacji.
-    }
-  }
 
   const currencyContext = await getDisplayCurrencyContext(
     supabase,

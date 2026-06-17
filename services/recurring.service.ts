@@ -216,3 +216,29 @@ export async function processRecurringExpenses(
 
   return generated;
 }
+
+export function uniqueUserIds(rows: { user_id: string }[]): string[] {
+  return [...new Set(rows.map((row) => row.user_id))];
+}
+
+export async function processAllUsersRecurringExpenses(
+  supabase: SupabaseClient
+): Promise<{ usersProcessed: number; transactionsGenerated: number }> {
+  const { data: rows, error } = await supabase
+    .from("recurring_expenses")
+    .select("user_id")
+    .eq("is_active", true);
+
+  if (error) {
+    throw new Error("Nie udało się pobrać użytkowników z cyklicznymi transakcjami.");
+  }
+
+  const userIds = uniqueUserIds(rows ?? []);
+  let transactionsGenerated = 0;
+
+  for (const userId of userIds) {
+    transactionsGenerated += await processRecurringExpenses(supabase, userId);
+  }
+
+  return { usersProcessed: userIds.length, transactionsGenerated };
+}
